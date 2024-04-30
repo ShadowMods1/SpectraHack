@@ -7,9 +7,9 @@
 // @match        *://kour.io/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tampermonkey.net
 // @grant        none
-// @license      MIT
-// @downloadURL https://update.greasyfork.org/scripts/492079/Kourio%20Wallhack.user.js
-// @updateURL https://update.greasyfork.org/scripts/492079/Kourio%20Wallhack.meta.js
+// @license      Apache License
+// @downloadURL  https://update.greasyfork.org/scripts/492079/Kourio%20Wallhack.user.js
+// @updateURL    https://update.greasyfork.org/scripts/492079/Kourio%20Wallhack.meta.js
 // ==/UserScript==
 
 ( function() {
