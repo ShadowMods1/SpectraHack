@@ -2,121 +2,156 @@
 // @name         🛠️ SpectraHack
 // @namespace    http://tampermonkey.net/
 // @version      2024-04-01
-// @description  Wallhacks for Kour.io
+// @description  Wallhacks for Kour.io - ESP Toggle [E]
 // @author       NexusFusion
 // @match        *://kour.io/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tampermonkey.net
 // @grant        none
 // @license      Apache License
-// @downloadURL  https://update.greasyfork.org/scripts/492079/Kourio%20Wallhack.user.js
-// @updateURL    https://update.greasyfork.org/scripts/492079/Kourio%20Wallhack.meta.js
+// @downloadURL  https://raw.githubusercontent.com/NexusFusion/SpectraHack/main/%F0%9F%9B%A0%EF%B8%8F%20SpectraHack?token=GHSAT0AAAAAACQOZYB4ZDUZP7O5XSLPMIB2ZRRKVSA
+// @updateURL    https://raw.githubusercontent.com/NexusFusion/SpectraHack/main/%F0%9F%9B%A0%EF%B8%8F%20SpectraHack?token=GHSAT0AAAAAACQOZYB4ZDUZP7O5XSLPMIB2ZRRKVSA
 // ==/UserScript==
 
-( function() {
-	'use strict';
+(function() {
+    'use strict';
 
-	const WebGL = WebGL2RenderingContext.prototype;
-	HTMLCanvasElement.prototype.getContext = new Proxy( HTMLCanvasElement.prototype.getContext, {
-		apply( target, thisArgs, args ) {
-			return Reflect.apply( ...arguments );
+    let espEnabled = true;
+    let threshold = 4.5;
+    let menuVisible = true;
 
-		}
-	} );
-	if( window.observer != undefined ) {
-		window.observer.disconnect();
-	}
-	window.MutationObserver = {
-		observe : function() {
-			console.log( "Observed" );
-		}
-	};
-	if( window.location.href.indexOf( "/a" ) != -1 ) {
-		window.location.href = "https://kour.io";
-	}
-	var gl = null;
-	const handler = {
-		apply( target, thisArgs, args ) {
-			const program = thisArgs.getParameter( thisArgs.CURRENT_PROGRAM );
+    // Create HTML menu overlay with cool styling
+    const menuHtml = `
+        <div id="wallhack-menu" style="position: fixed; top: 20px; right: 20px; background-color: rgba(0, 0, 0, 0.7); border-radius: 10px; padding: 20px; border: 2px solid #3498db; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); color: #fff; font-family: Arial, sans-serif; ${menuVisible ? '' : 'display: none;'} transform: scale(0); transition: transform 0.3s ease-in-out;">
+            <h3 style="margin-top: 0; font-size: 24px; text-align: center; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">🛠️ SpectraHack</h3>
+            <div style="margin-bottom: 15px;">
+                <label for="threshold" style="font-size: 18px; font-weight: bold;">Threshold:</label>
+                <input type="number" id="threshold" value="${threshold}" step="0.1" min="0" style="margin-left: 10px; padding: 5px; border-radius: 4px; border: 1px solid #ccc; background-color: rgba(255, 255, 255, 0.5); color: #000;">
+            </div>
+            <div style="display: flex; justify-content: space-around;">
+                <button id="discord-btn" style="padding: 10px; background-color: #7289da; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Discord</button>
+                <button id="youtube-btn" style="padding: 10px; background-color: #ff0000; color: #fff; border: none; border-radius: 5px; cursor: pointer;">YouTube</button>
+            </div>
+            <div style="text-align: center; margin-top: 15px; font-size: 14px;">Made by NexusFusion</div>
+        </div>
+    `;
 
-			if( !program.uniforms ) {
+    // Append menu to the document body
+    document.body.insertAdjacentHTML('beforeend', menuHtml);
 
-				program.uniforms = {
-					enabled: thisArgs.getUniformLocation( program, 'enabled' ),
-					threshold: thisArgs.getUniformLocation( program, 'threshold' )
-				};
+    // Get menu elements
+    const thresholdInput = document.getElementById('threshold');
+    const discordBtn = document.getElementById('discord-btn');
+    const youtubeBtn = document.getElementById('youtube-btn');
+    const wallhackMenu = document.getElementById('wallhack-menu');
 
-			}
-			var couldBePlayer = true;
-			var threshold = 4.5;
-			program.uniforms.enabled && thisArgs.uniform1i( program.uniforms.enabled, couldBePlayer );
-			program.uniforms.threshold && thisArgs.uniform1f( program.uniforms.threshold, threshold );
-			if( couldBePlayer ) {
-				gl = thisArgs;
-			}
+    // Add event listener to update threshold value
+    thresholdInput.addEventListener('change', function() {
+        threshold = parseFloat(thresholdInput.value);
+    });
 
-			Reflect.apply( ...arguments );
+    // Event listener for key press
+    document.addEventListener('keydown', function(event) {
+        // Check if the pressed key is "E" for ESP toggle
+        if (event.key === 'e' || event.key === 'E') {
+            espEnabled = !espEnabled;
+            espToggle.textContent = `ESP ${espEnabled ? 'Enabled' : 'Disabled'} [E]`;
+        }
+        // Check if the pressed key is "/" to toggle the menu visibility
+        if (event.key === '/') {
+            menuVisible = !menuVisible;
+            wallhackMenu.style.transform = menuVisible ? 'scale(1)' : 'scale(0)';
+        }
+    });
 
-		}
-	};
+    // Event listeners for buttons
+    discordBtn.addEventListener('click', function() {
+        window.open('https://discord.gg/nexusfusion', '_blank');
+    });
 
-	WebGL.drawElements = new Proxy( WebGL.drawElements, handler );
-	WebGL.drawElementsInstanced = new Proxy( WebGL.drawElementsInstanced, handler );
+    youtubeBtn.addEventListener('click', function() {
+        window.open('https://www.youtube.com/nexusfusion', '_blank');
+    });
 
-	WebGL.shaderSource = new Proxy( WebGL.shaderSource, {
-		apply( target, thisArgs, args ) {
-			let [ shader, src ] = args;
-			if( src.indexOf( 'gl_Position' ) > - 1 ) {
-				if ( src.indexOf( 'OutlineEnabled' ) > - 1 ) {
-					shader.isPlayerShader = true;
-				}
-				src = src.replace( `void main()
+    // Intercept WebGL functions for wallhack
+    const WebGL = WebGL2RenderingContext.prototype;
+    const handler = {
+        apply(target, thisArgs, args) {
+            const program = thisArgs.getParameter(thisArgs.CURRENT_PROGRAM);
+
+            if (!program.uniforms) {
+                program.uniforms = {
+                    enabled: thisArgs.getUniformLocation(program, 'enabled'),
+                    threshold: thisArgs.getUniformLocation(program, 'threshold')
+                };
+            }
+
+            // Only apply uniforms if ESP is enabled
+            if (espEnabled) {
+                program.uniforms.enabled && thisArgs.uniform1i(program.uniforms.enabled, 1);
+                program.uniforms.threshold && thisArgs.uniform1f(program.uniforms.threshold, threshold);
+            }
+
+            Reflect.apply(...arguments);
+        }
+    };
+
+    WebGL.drawElements = new Proxy(WebGL.drawElements, handler);
+    WebGL.drawElementsInstanced = new Proxy(WebGL.drawElementsInstanced, handler);
+
+    WebGL.shaderSource = new Proxy(WebGL.shaderSource, {
+        apply(target, thisArgs, args) {
+            let [shader, src] = args;
+
+            if (src.indexOf('gl_Position') > -1) {
+                if (src.indexOf('OutlineEnabled') > -1) {
+                    shader.isPlayerShader = true;
+                }
+
+                src = src.replace(`void main()
 {`, `
-					out float vDepth;
-					out float enabled;
-					uniform float threshold;
+                    out float vDepth;
+                    out float enabled;
+                    uniform float threshold;
 
-					void main() {
-						enabled = 0.0;
+                    void main() {
+                        enabled = 0.0;
 
-					` );
-				if( src.indexOf( "hlslcc_mtx4x4unity_WorldToObject" ) != -1 && src.indexOf( "_MaskSoftnessX" ) == -1
-					&& src.indexOf( "vs_TEXCOORD5.xyz = unity_SHC.xyz * vec3(u_xlat16_2) + u_xlat16_3.xyz;" ) != -1
-					&& src.indexOf( "_DetailAlbedoMap_ST" ) != -1
-					&& src.indexOf( "vs_TEXCOORD1.w = 0.0;" ) != -1
-				) {
-					src = src.replace( "enabled = 0.0", `enabled = 1.0;
-						if( in_POSITION0.y > 10.0 ) {
-							//enabled = 2.0;
-						}` );
-					src = src.replace( /return;/, `
-						gl_Position.z = 0.01 + gl_Position.z * 0.1;
-					` );
-				}
+                    `);
 
-			} else if ( src.indexOf( 'SV_Target0' ) > - 1 ) {
-				src = src.replace( 'void main', `
+                if (src.indexOf("hlslcc_mtx4x4unity_WorldToObject") != -1 && src.indexOf("_MaskSoftnessX") == -1 &&
+                    src.indexOf("vs_TEXCOORD5.xyz = unity_SHC.xyz * vec3(u_xlat16_2) + u_xlat16_3.xyz;") != -1 &&
+                    src.indexOf("_DetailAlbedoMap_ST") != -1 &&
+                    src.indexOf("vs_TEXCOORD1.w = 0.0;") != -1
+                ) {
+                    src = src.replace("enabled = 0.0", `enabled = 1.0;
+                        if( in_POSITION0.y > 10.0 ) {
+                            //enabled = 2.0;
+                        }`);
 
-				in float vDepth;
-				in float enabled;
+                    src = src.replace(/return;/, `
+                        gl_Position.z = 0.01 + gl_Position.z * 0.1;
+                    `);
+                }
 
-				void main
+            } else if (src.indexOf('SV_Target0') > -1) {
+                src = src.replace('void main', `
+                in float vDepth;
+                in float enabled;
 
-				` ).replace( /return;/, `
+                void main
+                `).replace(/return;/, `
+                if( enabled > 0.5 && SV_Target0.a == 1.0 ) {
+                    SV_Target0 = mix( SV_Target0 * 0.8, vec4( 1.0, 0.0, 0.0, 1.0 ), 0.4 );
+                    if( enabled > 0.5 ) {
+                        //SV_Target0.xyz = vec3( 1.0, 0.0, 0.0 );
+                    }
+                    SV_Target0.a = 1.0;
+                }
+                `);
+            }
 
-				if( enabled > 0.5 && SV_Target0.a == 1.0 ) {
-
-					SV_Target0 = mix( SV_Target0 * 0.8, vec4( 1.0, 0.0, 0.0, 1.0 ), 0.4 );
-					if( enabled > 0.5 ) {
-						//SV_Target0.xyz = vec3( 1.0, 0.0, 0.0 );
-					}
-					SV_Target0.a = 1.0;
-
-				}
-
-				` );
-			}
-			args[ 1 ] = src;
-			return Reflect.apply( ...arguments );
-		}
-	} );
-} )();
+            args[1] = src;
+            return Reflect.apply(...arguments);
+        }
+    });
+})();
