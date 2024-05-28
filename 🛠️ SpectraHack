@@ -8,8 +8,6 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tampermonkey.net
 // @grant        none
 // @license      Apache License
-// @downloadURL  https://raw.githubusercontent.com/NexusFusion/SpectraHack/main/%F0%9F%9B%A0%EF%B8%8F%20SpectraHack?token=GHSAT0AAAAAACQOZYB4ZDUZP7O5XSLPMIB2ZRRKVSA
-// @updateURL    https://raw.githubusercontent.com/NexusFusion/SpectraHack/main/%F0%9F%9B%A0%EF%B8%8F%20SpectraHack?token=GHSAT0AAAAAACQOZYB4ZDUZP7O5XSLPMIB2ZRRKVSA
 // ==/UserScript==
 
 (function() {
@@ -65,7 +63,7 @@
 
     // Event listeners for buttons
     discordBtn.addEventListener('click', function() {
-        window.open('https://discord.gg/nexusfusion', '_blank');
+        window.open('https://discord.gg/SbXbYjf6uS', '_blank');
     });
 
     youtubeBtn.addEventListener('click', function() {
